@@ -1,5 +1,5 @@
 class Salle:
-    def __init__(self, id_salle: int, nom: str, capacite: int):
+    def __init__(self, id_salle: int, nom: str, capacite: int) -> None:
         self._id_salle: int = id_salle
         self._nom: str = nom
         self._capacite: int = capacite
@@ -10,32 +10,25 @@ class Salle:
         return self._id_salle
 
     @property
-    def nom(self) -> str:
-        return self._nom
-
-    @property
-    def capacite(self) -> int:
-        return self._capacite
-
-    @property
     def est_reservee(self) -> bool:
         return self._est_reservee
 
-    @est_reservee.setter
-    def est_reservee(self, valeur: bool) -> None:
-        self._est_reservee = valeur
+    def reserver(self) -> None:
+        self._est_reservee = True
 
     def to_dict(self) -> dict:
         return {
-            "id_salle": self._id_salle,
+            "id": self._id_salle,
             "nom": self._nom,
-            "capacite": self._capacite,
-            "est_reservee": self._est_reservee
+            "capacite": self._capacite
         }
 
 class GestionnaireSalles:
-    def __init__(self):
+    def __init__(self) -> None:
         self._salles: list[Salle] = []
+        # Initialisation avec quelques données par défaut pour test
+        self.ajouter_salle(Salle(1, "Salle A", 10))
+        self.ajouter_salle(Salle(2, "Salle B", 20))
 
     def ajouter_salle(self, salle: Salle) -> None:
         self._salles.append(salle)
@@ -46,6 +39,6 @@ class GestionnaireSalles:
     def reserver_salle(self, id_salle: int) -> bool:
         for salle in self._salles:
             if salle.id_salle == id_salle and not salle.est_reservee:
-                salle.est_reservee = True
+                salle.reserver()
                 return True
         return False

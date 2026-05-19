@@ -7,10 +7,9 @@ project_root/
 │   ├── __init__.py
 │   ├── modeles.py      # Classes Salle et GestionnaireSalles
 │   └── api.py          # Serveur FastAPI
-├── frontend/
-│   ├── index.html
-│   └── style.css
-└── requirements.txt
+└── frontend/
+    ├── index.html
+    └── style.css
 ```
 
 ### 2. SPECS BACKEND (backend/modeles.py)
@@ -49,11 +48,11 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 gestionnaire = GestionnaireSalles()
 
 @app.get("/salles")
-async def get_salles() -> list[dict]:
+def get_salles() -> list:
     return gestionnaire.lister_disponibles()
 
 @app.post("/reserver/{id_salle}")
-async def reserver(id_salle: int) -> dict:
+def reserver(id_salle: int) -> dict:
     succes = gestionnaire.reserver_salle(id_salle)
     return {"success": succes}
 
@@ -62,18 +61,16 @@ if __name__ == "__main__":
 ```
 
 ### 4. SPECS FRONTEND
-*   **Design :** Palette "Modern Clean" (Fond: `#f4f7f6`, Cartes: `#ffffff`, Accent: `#3498db`). Utiliser `Flexbox` pour centrer le conteneur principal (`max-width: 800px`).
-*   **Structure (index.html) :**
-    *   `<header>` avec titre.
-    *   `<main id="app">` pour injecter dynamiquement les cartes de salles via JS.
-*   **Appels API :**
-    *   `fetch('http://localhost:8000/salles')` au chargement (`window.onload`).
-    *   `fetch('http://localhost:8000/reserver/' + id, {method: 'POST'})` au clic sur le bouton de réservation.
+*   **Design (style.css)** : Utiliser une police sans-serif (Inter/Roboto), palette épurée (fond `#f4f7f6`, cartes blanches `#ffffff` avec `box-shadow: 0 4px 6px rgba(0,0,0,0.1)`), centrage via `display: flex; justify-content: center;`.
+*   **Structure (index.html)** : Conteneur principal `<div id="app">` avec un titre `<h1>` et une section `<div id="liste-salles">` pour injecter dynamiquement les cartes via JS.
+*   **Appels API** :
+    *   `fetch('http://localhost:8000/salles')` pour charger la liste au chargement.
+    *   `fetch('http://localhost:8000/reserver/' + id, {method: 'POST'})` lors du clic sur le bouton de réservation.
 
 ### 5. FLUX DE DONNÉES
-1.  **Initialisation :** Le navigateur charge `index.html` -> `script.js` exécute `fetch('/salles')`.
-2.  **Requête :** Le client envoie une requête HTTP GET vers `http://localhost:8000/salles`.
-3.  **Traitement :** `api.py` appelle `GestionnaireSalles.lister_disponibles()`.
-4.  **Réponse :** Le backend retourne un JSON au frontend.
-5.  **Rendu :** Le frontend génère les éléments DOM (cartes) correspondant aux salles disponibles.
-6.  **Action :** L'utilisateur clique sur "Réserver" -> `fetch` POST vers `/reserver/{id}` -> Mise à jour de l'état dans `GestionnaireSalles` -> Rafraîchissement de l'UI.
+1.  **Initialisation** : Le navigateur charge `index.html` -> `script.js` exécute `fetch('/salles')`.
+2.  **Requête** : Le client envoie une requête HTTP GET vers `localhost:8000/salles`.
+3.  **Traitement** : `api.py` appelle `GestionnaireSalles.lister_disponibles()`.
+4.  **Réponse** : Le backend retourne un JSON au frontend.
+5.  **Rendu** : Le frontend manipule le DOM pour afficher les salles disponibles.
+6.  **Action** : L'utilisateur clique sur "Réserver" -> `fetch` POST vers `/reserver/{id}` -> Mise à jour de l'état côté serveur -> Rafraîchissement de l'UI.
