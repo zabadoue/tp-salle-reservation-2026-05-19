@@ -1,89 +1,52 @@
-/* Design System - Gestion de Salles */
 :root {
-    --primary-color: #2c3e50;
-    --bg-color: #ecf0f1;
-    --accent-color: #27ae60;
+    --bg-color: #f4f7f6;
     --card-bg: #ffffff;
-    --text-color: #333;
-    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+    --accent-color: #3498db;
+    --text-main: #2c3e50;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', sans-serif;
     background-color: var(--bg-color);
-    color: var(--primary-color);
-    line-height: 1.6;
-    padding: 2rem;
-}
-
-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-main {
-    max-width: 1000px;
-    margin: 0 auto;
+    color: var(--text-main);
     display: flex;
-    flex-direction: column;
-    gap: 2rem;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
 }
 
-/* Grille des salles */
-#section-disponibles {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
-}
-
-.card-salle {
+.container {
+    width: 100%;
+    max-width: 800px;
     background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+h1 { text-align: center; margin-bottom: 2rem; }
+
+#salles-list { display: grid; gap: 1rem; }
+
+.salle-card {
     padding: 1.5rem;
+    border: 1px solid #eee;
     border-radius: 8px;
-    box-shadow: var(--shadow);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s ease;
 }
 
-.card-salle:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Boutons */
 .btn-reserve {
     background-color: var(--accent-color);
     color: white;
     border: none;
-    padding: 0.75rem 1rem;
-    border-radius: 4px;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
     cursor: pointer;
-    font-weight: bold;
-    width: 100%;
-    margin-top: 1rem;
-    transition: background 0.3s ease;
 }
 
-.btn-reserve:hover {
-    background-color: #219150;
-}
-
-.btn-reserve:disabled {
-    background-color: #bdc3c7;
-    cursor: not-allowed;
-}
-
-/* Typographie */
-h1 {
-    color: var(--primary-color);
-    margin-bottom: 0.5rem;
-}
-
-h3 {
-    margin-bottom: 0.5rem;
-}
+.btn-reserve:disabled { background-color: #bdc3c7; cursor: not-allowed; }

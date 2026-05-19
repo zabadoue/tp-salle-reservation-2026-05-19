@@ -1,4 +1,4 @@
-# tp-python (backend) et html/css (frontend)-backend-crer-la-classe-salle-a-2026-05-19
+# tp-python-backend-crer-la-classe-salle-a-2026-05-19
 
 > Projet généré automatiquement par **TP_maker** — Usine Logicielle Multi-Agents IA
 
@@ -7,38 +7,37 @@
 - **Généré le** : 2026-05-19
 
 ## Tâches implémentées
-- BACKEND : Créer la classe Salle avec les attributs id_salle, nom, capacite et est_reservee.
-- BACKEND : Créer la classe GestionnaireSalles avec des méthodes pour ajouter une salle, lister les salles disponibles, et réserver une salle par son id.
-- FRONTEND : Créer le fichier index.html principal qui affiche le titre de l'application et la structure de base (div conteneurs).
-- FRONTEND : Créer le fichier style.css pour rendre l'interface esthétique (couleurs, ombres, flexbox).
+- BACKEND : Créer la classe Salle avec les attributs id_salle, nom, capacite et est_reservee
+- BACKEND : Créer la classe GestionnaireSalles avec des methodes pour ajouter une salle, lister les salles disponibles, et reserver une salle par son id
+- BACKEND : Créer le serveur FastAPI (backend/api.py) avec les endpoints REST et la configuration CORS
+- [FRONTEND] Creer le fichier index.html principal qui affiche le titre de l'application et la structure de base (div conteneurs)
+- [FRONTEND] Creer le fichier style.css pour rendre l'interface esthetique (couleurs, ombres, flexbox)
 
 ## Fichiers générés
-- `backend/gestionnaire.py`
+- `backend/api.py`
+- `backend/modeles.py`
 - `frontend/index.html`
 - `frontend/style.css`
 
 ## Architecture
 ```
-Voici le plan technique structuré pour le projet de gestion de salles.
+Voici le plan technique pour le projet de gestion de salles.
 
 ### 1. ARBORESCENCE
 ```text
 project_root/
 ├── backend/
 │   ├── __init__.py
-│   └── gestionnaire.py
+│   ├── modeles.py      # Classes Salle et GestionnaireSalles
+│   └── api.py          # Serveur FastAPI
 ├── frontend/
 │   ├── index.html
 │   └── style.css
-└── main.py (Point d'entrée API/Interface)
+└── requirements.txt
 ```
 
-### 2. SPECS BACKEND (`backend/gestionnaire.py`)
-L'encapsulation est assurée par des propriétés `@property` pour l'accès aux attributs privés.
-
+### 2. SPECS BACKEND (backend/modeles.py)
 ```python
-from typing import List, Optional
-
 class Salle:
     def __init__(self, id_salle: int, nom: str, capacite: int):
         self._id_salle: int = id_salle
@@ -46,11 +45,15 @@ class Salle:
         self._capacite: int = capacite
         self._est_reservee: bool = False
 
-    # Getters et Setters via propriétés
-    @property
-    def id_salle(self) -> int: return self._id_salle
+class GestionnaireSalles:
+    def __init__(self):
+        self._salles: list[Salle] = []
 
-    @pr
+    def ajouter_salle(self, salle: Salle) -> None:
+        pass
+
+    def lister_disponibles(self) -> list[dict]:
+ 
 ```
 
 ---

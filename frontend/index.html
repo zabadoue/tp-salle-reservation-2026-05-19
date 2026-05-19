@@ -3,32 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Système de Gestion de Salles</title>
+    <title>Gestionnaire de Salles</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <header>
-        <h1>Gestion des Salles de Réunion</h1>
-    </header>
-
-    <main>
-        <!-- Section affichant la liste des salles disponibles -->
-        <section id="section-disponibles">
-            <h2>Salles Disponibles</h2>
-            <div id="grille-salles" class="grid-container">
-                <!-- Les cartes .card-salle seront injectées ici dynamiquement -->
-            </div>
-        </section>
-
-        <!-- Section pour les interactions utilisateur -->
-        <section id="section-actions">
-            <h2>Actions</h2>
-            <div class="actions-container">
-                <button id="btn-refresh" class="btn-action">Actualiser la liste</button>
-            </div>
-        </section>
-    </main>
-
+    <div class="container">
+        <h1>Salles Disponibles</h1>
+        <div id="salles-list"></div>
+    </div>
+    <script>
+        const salles = [
+            { id: 1, nom: "Salle Alpha", reservee: false },
+            { id: 2, nom: "Salle Beta", reservee: true },
+            { id: 3, nom: "Salle Gamma", reservee: false }
+        ];
+        function renderSalles(data) {
+            const container = document.getElementById('salles-list');
+            container.innerHTML = data.map(salle => `
+                <div class="salle-card">
+                    <div><strong>${salle.nom}</strong><br><small>${salle.reservee ? 'Occupée' : 'Disponible'}</small></div>
+                    <button class="btn-reserve" onclick="reserver(${salle.id})" ${salle.reservee ? 'disabled' : ''}>
+                        ${salle.reservee ? 'Réservée' : 'Réserver'}
+                    </button>
+                </div>
+            `).join('');
+        }
+        function reserver(id) {
+            alert("Salle " + id + " réservée !");
+            const salle = salles.find(s => s.id === id);
+            if (salle) { salle.reservee = true; renderSalles(salles); }
+        }
+        renderSalles(salles);
+    </script>
 </body>
 </html>
