@@ -1,23 +1,20 @@
-Voici le plan technique structuré pour le projet de gestion de salles.
+Voici le plan technique pour le projet de gestion de salles.
 
 ### 1. ARBORESCENCE
 ```text
 project_root/
 ├── backend/
 │   ├── __init__.py
-│   └── gestionnaire.py
+│   ├── modeles.py      # Classes Salle et GestionnaireSalles
+│   └── api.py          # Serveur FastAPI
 ├── frontend/
 │   ├── index.html
 │   └── style.css
-└── main.py (Point d'entrée API/Interface)
+└── requirements.txt
 ```
 
-### 2. SPECS BACKEND (`backend/gestionnaire.py`)
-L'encapsulation est assurée par des propriétés `@property` pour l'accès aux attributs privés.
-
+### 2. SPECS BACKEND (backend/modeles.py)
 ```python
-from typing import List, Optional
-
 class Salle:
     def __init__(self, id_salle: int, nom: str, capacite: int):
         self._id_salle: int = id_salle
@@ -25,45 +22,58 @@ class Salle:
         self._capacite: int = capacite
         self._est_reservee: bool = False
 
-    # Getters et Setters via propriétés
-    @property
-    def id_salle(self) -> int: return self._id_salle
-
-    @property
-    def est_reservee(self) -> bool: return self._est_reservee
-
-    def reserver(self) -> None:
-        self._est_reservee = True
-
 class GestionnaireSalles:
     def __init__(self):
-        self._salles: List[Salle] = []
+        self._salles: list[Salle] = []
 
     def ajouter_salle(self, salle: Salle) -> None:
         pass
 
-    def lister_disponibles(self) -> List[Salle]:
+    def lister_disponibles(self) -> list[dict]:
         pass
 
     def reserver_salle(self, id_salle: int) -> bool:
         pass
 ```
 
-### 3. SPECS FRONTEND
-**Design :** Utilisation d'une palette "Soft Modern" (Fond: `#f4f7f6`, Cartes: `#ffffff`, Accent: `#3498db`).
+### 3. SPECS API FASTAPI (backend/api.py)
+```python
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
 
-*   **`index.html` :**
-    *   Conteneur principal `<div class="container">`.
-    *   Header avec `<h1>`.
-    *   Section `<div id="salles-list">` pour injection dynamique via JS.
-*   **`style.css` :**
-    *   `body` : Flexbox, centrage total, `min-height: 100vh`.
-    *   `.container` : `max-width: 800px`, `padding: 2rem`, `box-shadow: 0 4px 6px rgba(0,0,0,0.1)`, `border-radius: 12px`.
-    *   `.salle-card` : Design épuré, bordure légère, bouton d'action avec transition `hover`.
+app = FastAPI()
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-### 4. FLUX DE DONNÉES
-1.  **Initialisation :** Le backend expose une API (ex: FastAPI ou Flask) avec des endpoints `/salles` (GET) et `/reserver` (POST).
-2.  **Chargement :** Au chargement de `index.html`, un script JS effectue un `fetch()` vers `/salles`.
-3.  **Rendu :** Le frontend génère dynamiquement les éléments HTML basés sur le JSON reçu.
-4.  **Action :** Lors du clic sur "Réserver", le frontend envoie l'ID de la salle au backend. Le backend met à jour l'attribut `_est_reservee` et renvoie un statut de succès/échec.
-5.  **Rafraîchissement :** Le frontend met à jour l'état visuel de la carte correspondante sans recharger la page.
+# Instance globale du gestionnaire
+gestionnaire = GestionnaireSalles()
+
+@app.get("/salles")
+async def get_salles() -> list[dict]:
+    return gestionnaire.lister_disponibles()
+
+@app.post("/reserver/{id_salle}")
+async def reserver(id_salle: int) -> dict:
+    succes = gestionnaire.reserver_salle(id_salle)
+    return {"success": succes}
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+
+### 4. SPECS FRONTEND
+*   **Design :** Palette "Modern Clean" (Fond: `#f4f7f6`, Cartes: `#ffffff`, Accent: `#3498db`). Utiliser `Flexbox` pour centrer le conteneur principal (`max-width: 800px`).
+*   **Structure (index.html) :**
+    *   `<header>` avec titre.
+    *   `<main id="app">` pour injecter dynamiquement les cartes de salles via JS.
+*   **Appels API :**
+    *   `fetch('http://localhost:8000/salles')` au chargement (`window.onload`).
+    *   `fetch('http://localhost:8000/reserver/' + id, {method: 'POST'})` au clic sur le bouton de réservation.
+
+### 5. FLUX DE DONNÉES
+1.  **Initialisation :** Le navigateur charge `index.html` -> `script.js` exécute `fetch('/salles')`.
+2.  **Requête :** Le client envoie une requête HTTP GET vers `http://localhost:8000/salles`.
+3.  **Traitement :** `api.py` appelle `GestionnaireSalles.lister_disponibles()`.
+4.  **Réponse :** Le backend retourne un JSON au frontend.
+5.  **Rendu :** Le frontend génère les éléments DOM (cartes) correspondant aux salles disponibles.
+6.  **Action :** L'utilisateur clique sur "Réserver" -> `fetch` POST vers `/reserver/{id}` -> Mise à jour de l'état dans `GestionnaireSalles` -> Rafraîchissement de l'UI.

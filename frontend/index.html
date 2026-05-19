@@ -4,36 +4,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestionnaire de Salles</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root { --bg: #f4f7f6; --card: #ffffff; --accent: #3498db; --text: #2c3e50; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 2rem; }
+        h1 { margin-bottom: 1.5rem; font-size: 1.8rem; }
+        #status-banner { margin-bottom: 1rem; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; }
+        .banner-demo { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+        .banner-live { background: #d4edda; color: #155724; border: 1px solid #28a745; }
+        #app { width: 100%; max-width: 700px; display: grid; gap: 1rem; }
+        .card { background: var(--card); border: 1px solid #e0e0e0; border-radius: 10px; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.06); transition: transform .15s; }
+        .card:hover { transform: translateY(-2px); }
+        .card h3 { font-size: 1.05rem; margin-bottom: 0.2rem; }
+        .card p { font-size: 0.85rem; color: #666; }
+        .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 99px; font-size: 0.75rem; font-weight: 600; margin-top: 0.3rem; }
+        .badge-dispo { background: #d4edda; color: #155724; }
+        .badge-occupe { background: #f8d7da; color: #721c24; }
+        button { padding: 0.5rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background .2s; }
+        .btn-reserver { background: var(--accent); color: white; }
+        .btn-reserver:hover { background: #2980b9; }
+        .btn-reserver:disabled { background: #bdc3c7; cursor: not-allowed; }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Salles Disponibles</h1>
-        <div id="salles-list"></div>
-    </div>
+    <h1>Gestionnaire de Salles</h1>
+    <div id="status-banner"></div>
+    <main id="app"></main>
+
     <script>
-        const salles = [
-            { id: 1, nom: "Salle Alpha", reservee: false },
-            { id: 2, nom: "Salle Beta", reservee: true },
-            { id: 3, nom: "Salle Gamma", reservee: false }
+        const SALLES_DEMO = [
+            { id_salle: 1, nom: "Salle Alpha", capacite: 10, est_reservee: false },
+            { id_salle: 2, nom: "Salle Beta",  capacite: 20, est_reservee: true  },
+            { id_salle: 3, nom: "Salle Gamma", capacite: 6,  est_reservee: false },
         ];
-        function renderSalles(data) {
-            const container = document.getElementById('salles-list');
-            container.innerHTML = data.map(salle => `
-                <div class="salle-card">
-                    <div><strong>${salle.nom}</strong><br><small>${salle.reservee ? 'Occupée' : 'Disponible'}</small></div>
-                    <button class="btn-reserve" onclick="reserver(${salle.id})" ${salle.reservee ? 'disabled' : ''}>
-                        ${salle.reservee ? 'Réservée' : 'Réserver'}
+
+        let modeDemo = false;
+
+        function afficherBanner(demo) {
+            const el = document.getElementById('status-banner');
+            if (demo) {
+                el.className = 'banner-demo';
+                el.textContent = '⚠️ Mode démonstration — serveur FastAPI non démarré. Données simulées.';
+            } else {
+                el.className = 'banner-live';
+                el.textContent = '✅ Connecté au serveur FastAPI (localhost:8000)';
+            }
+        }
+
+        function renderSalles(salles) {
+            const app = document.getElementById('app');
+            app.innerHTML = salles.map(s => `
+                <div class="card">
+                    <div>
+                        <h3>${s.nom}</h3>
+                        <p>Capacité : ${s.capacite} personnes</p>
+                        <span class="badge ${s.est_reservee ? 'badge-occupe' : 'badge-dispo'}">
+                            ${s.est_reservee ? 'Occupée' : 'Disponible'}
+                        </span>
+                    </div>
+                    <button class="btn-reserver" onclick="reserver(${s.id_salle})" ${s.est_reservee ? 'disabled' : ''}>
+                        ${s.est_reservee ? 'Réservée' : 'Réserver'}
                     </button>
                 </div>
             `).join('');
         }
-        function reserver(id) {
-            alert("Salle " + id + " réservée !");
-            const salle = salles.find(s => s.id === id);
-            if (salle) { salle.reservee = true; renderSalles(salles); }
+
+        async function chargerSalles() {
+            try {
+                const res = await fetch('http://localhost:8000/salles');
+                if (!res.ok) throw new Error('Réponse non-OK');
+                const salles = await res.json();
+                modeDemo = false;
+                afficherBanner(false);
+                renderSalles(salles);
+            } catch {
+                modeDemo = true;
+                afficherBanner(true);
+                renderSalles(SALLES_DEMO);
+            }
         }
-        renderSalles(salles);
+
+        async function reserver(id) {
+            if (modeDemo) {
+                const salle = SALLES_DEMO.find(s => s.id_salle === id);
+                if (salle) { salle.est_reservee = true; renderSalles(SALLES_DEMO); }
+                return;
+            }
+            try {
+                await fetch(`http://localhost:8000/reserver/${id}`, { method: 'POST' });
+                chargerSalles();
+            } catch {
+                alert('Erreur lors de la réservation.');
+            }
+        }
+
+        window.onload = chargerSalles;
     </script>
 </body>
 </html>
